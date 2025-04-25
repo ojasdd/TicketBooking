@@ -1,0 +1,8 @@
+<h1>Events</h1>
+<ul>
+  {% for event in events %}
+    <li>
+      <a href="{% url 'event_detail' event.pk %}">{{ event.name }}</a> - ₹{{ event.price }}
+    </li>
+  {% endfor %}
+</ul>

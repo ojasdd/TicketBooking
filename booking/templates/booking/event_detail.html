@@ -1,0 +1,5 @@
+<h2>{{ event.name }}</h2>
+<p>{{ event.description }}</p>
+<p>Available: {{ event.available_tickets }}</p>
+<p>Price: ₹{{ event.price }}</p>
+<a href="{% url 'add_to_cart' event.pk %}">Add to Cart</a>
