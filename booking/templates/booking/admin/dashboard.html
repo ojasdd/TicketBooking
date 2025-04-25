@@ -1,0 +1,9 @@
+{% extends 'booking/admin/base.html' %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+<div class="admin-links">
+    <a href="{% url 'admin_event_list' %}" class="btn">Manage Events</a>
+    <a href="{% url 'admin_booking_list' %}" class="btn">View Bookings</a>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'booking/admin/base.html' %}
+
+{% block content %}
+<h1>All Bookings</h1>
+
+<table class="booking-table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Event</th>
+            <th>Seats</th>
+            <th>Booking Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.user.username }}</td>
+            <td>{{ booking.event.title }}</td>
+            <td>{{ booking.seats }}</td>
+            <td>{{ booking.booking_date|date:"M d, Y H:i" }}</td>
+            <td>{% if booking.is_confirmed %}Confirmed{% else %}Pending{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

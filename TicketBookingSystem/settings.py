@@ -11,9 +11,26 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Authentication
+# settings.py
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Security - adjust for production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'booking',  # Your app name here
 ]
 
 MIDDLEWARE = [
@@ -54,7 +72,9 @@ ROOT_URLCONF = 'TicketBookingSystem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),  # Global templates directory
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -68,7 +88,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TicketBookingSystem.wsgi.application'
 
-
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -77,9 +99,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ticketdb',
         'USER': 'user',
-        'PASSWORD': 'pass',
+        'PASSWORD': 'password',
         'HOST': 'db',
-        'PORT': 5432,
+        'PORT': '5432',
     }
 }
 

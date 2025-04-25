@@ -1,0 +1,12 @@
+<!-- booking/booked_events.html -->
+<h1>Your Booked Events</h1>
+<ul>
+  {% for event in events %}
+    <li>
+      <a href="{% url 'event_detail' event.pk %}">{{ event.title }}</a> - ₹{{ event.price }}
+      <p>{{ event.location }} - {{ event.date|date:"F j, Y, g:i a" }}</p>
+    </li>
+  {% empty %}
+    <li>You have not booked any events yet.</li>
+  {% endfor %}
+</ul>

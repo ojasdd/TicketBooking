@@ -3,4 +3,7 @@ from .models import Event
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date', 'available_tickets')
+    list_display = ('title', 'date', 'location', 'price')
+    list_filter = ('date', 'location')
+    search_fields = ('title', 'description')
+    ordering = ('-date',)
