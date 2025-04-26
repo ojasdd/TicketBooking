@@ -30,13 +30,35 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from .models import Event, Booking
+from django.contrib.auth import authenticate, login
+from django.shortcuts import redirect, render
+from django.contrib import messages
+
+def admin_login(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_dashboard')  # If already logged in and is staff, go to dashboard
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, "Invalid credentials or not authorized as Admin.")
+
+    return render(request, 'booking/admin/login.html')
+
 
 def book_event(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
         quantity = int(request.POST.get('quantity', 1))
         if quantity <= event.available_tickets:
-            Booking.objects.create(user=request.user, event=event, quantity=quantity)
+            Booking.objects.create(user=request.user, event=event, quantity=quantity, seats="A1, A2, A3")
             event.available_tickets -= quantity
             event.save()
             messages.success(request, f"Successfully booked {quantity} ticket(s) for {event.title}.")
@@ -47,10 +69,11 @@ def book_event(request, pk):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')  # Redirect to login page after logout
+    return redirect('login') # Redirect to login page after logout
 
 
 # Accounts View (User Profile/Dashboard)
+@login_required
 def accounts(request):
     user = request.user  # Get the current logged-in user
     bookings = Booking.objects.filter(user=user)  # Get the user's bookings
@@ -72,8 +95,12 @@ def booked_events(request):
 
 
 def custom_logout_view(request):
-    logout(request)
-    return redirect('admin_dashboard')  # or wherever you want to send users after logout
+    if request.user.is_authenticated and request.user.is_staff:
+        logout(request)
+        return redirect('admin_login')  # Admin logout
+    else:
+        logout(request)
+        return redirect('login')    # or wherever you want to send users after logout
 
 
 def admin_dashboard(request):
@@ -90,18 +117,19 @@ def add_event(request):
         date = request.POST['date']
         location = request.POST['location']
         price = request.POST['price']
+        available_tickets = request.POST['available_tickets']  # <-- Add this line
 
         Event.objects.create(
             title=title,
             description=description,
             date=date,
             location=location,
-            price=price
+            price=price,
+            available_tickets=available_tickets  # <-- And this line
         )
         return redirect('manage_events')
     
     return render(request, 'booking/admin/event_form.html')
-
 def edit_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     if request.method == 'POST':
@@ -110,6 +138,7 @@ def edit_event(request, event_id):
         event.date = request.POST['date']
         event.location = request.POST['location']
         event.price = request.POST['price']
+        event.available_tickets = request.POST['available_tickets']  # <-- Add this
         event.save()
         return redirect('manage_events')
     
@@ -163,7 +192,7 @@ def register(request):
             try:
                 user = User.objects.create_user(username, email, password1)
                 auth_login(request, user)
-                return redirect('dashboard')  # Or your preferred redirect
+                return redirect('/')  # Or your preferred redirect
             except Exception as e:
                 errors.append(f"Error creating user: {str(e)}")
         
@@ -186,13 +215,13 @@ def user_login(request):
         
         if user is not None:
             auth_login(request, user)
-            next_url = request.POST.get('next', 'home')  # Default to 'home' instead of empty
+            next_url = request.POST.get('next', '/')  # Default to 'home' instead of empty
             return redirect(next_url)
         else:
             messages.error(request, "Invalid username or password")
     
     # Handle GET request
-    next_url = request.GET.get('next', 'home')  # Default to 'home'
+    next_url = request.GET.get('next', '/')  # Default to 'home'
     return render(request, 'booking/login.html', {'next': next_url})
 
 class EventListView(View):

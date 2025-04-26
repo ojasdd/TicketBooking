@@ -17,5 +17,6 @@ class Event(models.Model):
 class Booking(models.Model):
     event = models.ForeignKey(Event, related_name='bookings', on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    seats = models.PositiveIntegerField()
+    seats = models.CharField(max_length=255)
     booking_date = models.DateTimeField(auto_now_add=True)
+    quantity = models.IntegerField(default=1)
